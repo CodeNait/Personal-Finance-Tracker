@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Budget Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #income, #expenses {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        #income h2, #expenses h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        #income div, #expenses div {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        #income label, #expenses label {
+            font-weight: bold;
+            width: 150px;
+            margin-right: 10px;
+        }
+
+        #income input[type="text"], #income input[type="number"],
+        #expenses input[type="text"], #expenses input[type="number"],
+        #income input[type="date"], #expenses input[type="date"] {
+            flex: 1;
+            padding: 5px;
+        }
+
+        #income button, #expenses button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #income button:hover, #expenses button:hover {
+            background-color: #0056b3;
+        }
+
+        #income button:active, #expenses button:active {
+            background-color: #0056b3;
+            transform: translateY(1px);
+        }
+
+        #budgetSummary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        #categories {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Personal Budget Planner</h1>
+        
+        <div id="income">
+            <h2>Income</h2>
+            <div>
+                <label>Income Source:</label>
+                <input type="text" id="incomeSource" placeholder="Income Source">
+            </div>
+            <div>
+                <label>Amount:</label>
+                <input type="number" id="incomeAmount" placeholder="Income Amount">
+            </div>
+            <div>
+                <label>Date:</label>
+                <input type="date" id="incomeDate">
+            </div>
+            <button id="addIncomeBtn">Add Income</button>
+        </div>
+        
+        <hr>
+
+        <div id="expenses">
+            <h2>Expenses</h2>
+            <div id="categories">
+                <!-- Categories will be dynamically added here -->
+            </div>
+            <button id="addCategoryBtn">Add Expense Category</button>
+        </div>
+        
+        <div id="budgetSummary">
+            <h2>Budget Summary</h2>
+            <div>
+                <label>Total Income:</label>
+                <span id="totalIncome">$0.00</span>
+            </div>
+            <div>
+                <label>Total Expenses:</label>
+                <span id="totalExpenses">$0.00</span>
+            </div>
+            <div>
+                <label>Remaining Budget:</label>
+                <span id="remainingBudget">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize arrays to store income and expense categories
+        let income = [];
+        let expenses = [];
+
+        // Function to add income
+        function addIncome() {
+            const incomeSource = document.getElementById('incomeSource').value.trim();
+            const incomeAmount = parseFloat(document.getElementById('incomeAmount').value) || 0;
+
+            if (incomeSource !== '' && incomeAmount > 0) {
+                income.push({ source: incomeSource, amount: incomeAmount });
+
+                // Clear input fields
+                document.getElementById('incomeSource').value = '';
+                document.getElementById('incomeAmount').value = '';
+
+                // Update budget summary
+                updateBudget();
+            } else {
+                alert('Please enter valid income source and amount.');
+            }
+        }
+
+        // Function to add a new category input field
+        function addCategory() {
+            const categoryContainer = document.getElementById('categories');
+
+            // Create a new category div
+            const categoryDiv = document.createElement('div');
+            categoryDiv.classList.add('category');
+
+            // Category name input
+            const categoryNameInput = document.createElement('input');
+            categoryNameInput.type = 'text';
+            categoryNameInput.placeholder = 'Category Name';
+            categoryNameInput.classList.add('category-name');
+            categoryDiv.appendChild(categoryNameInput);
+
+            // Expense amount input
+            const expenseAmountInput = document.createElement('input');
+            expenseAmountInput.type = 'number';
+            expenseAmountInput.placeholder = 'Expense Amount';
+            expenseAmountInput.classList.add('expense-amount');
+            expenseAmountInput.addEventListener('input', updateBudget); // Listen for input change
+            categoryDiv.appendChild(expenseAmountInput);
+
+            // Add category div to categories container
+            categoryContainer.appendChild(categoryDiv);
+
+            // Update budget summary
+            updateBudget();
+        }
+
+        // Function to update budget summary
+        function updateBudget() {
+            let totalIncome = 0;
+            let totalExpenses = 0;
+
+            // Calculate total income
+            income.forEach(item => {
+                totalIncome += item.amount;
+            });
+
+            // Update expenses array with current inputs
+            expenses = [];
+            const categoryInputs = document.getElementsByClassName('category');
+            for (let i = 0; i < categoryInputs.length; i++) {
+                const categoryName = categoryInputs[i].querySelector('.category-name').value.trim();
+                const expenseAmount = parseFloat(categoryInputs[i].querySelector('.expense-amount').value) || 0;
+                if (categoryName !== '' && expenseAmount > 0) {
+                    expenses.push({ name: categoryName, amount: expenseAmount });
+                    totalExpenses += expenseAmount;
+                }
+            }
+
+            // Display total income, total expenses, and remaining budget
+            document.getElementById('totalIncome').textContent = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+            document.getElementById('remainingBudget').textContent = `$${(totalIncome - totalExpenses).toFixed(2)}`;
+        }
+
+        // Event listeners
+        document.getElementById('addIncomeBtn').addEventListener('click', addIncome);
+        document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+    </script>
+</body>
+</html>
