@@ -72,4 +72,20 @@ h1 {
 }
 
 #budgetSummary {
-    background-color: #f9f9f9
+    background-color: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#categories {
+    display: flex;
+    flex-direction: column;
+}
+
+.category {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
